@@ -10,7 +10,6 @@ const Sidebar = () => {
   const toggleSidebar = () => setExtended((prev) => !prev);
 
   const handleLoadPrompt = async (prompt) => {
-    setRecentPrompt(prompt);
     await onSent(prompt);
   };
 
