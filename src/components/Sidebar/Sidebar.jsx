@@ -38,16 +38,24 @@ const Sidebar = () => {
         {extended && (
           <div className="recent">
             <p className="recent-title">Recent</p>
-            {prevPrompts.map((item, index) => (
-              <div
-                key={index}
-                onClick={() => handleLoadPrompt(item)}
-                className="recent-entry"
-              >
-                <img src={assets.message_icon} alt="Prompt Icon" />
-                <p>{item.slice(0, 18)}...</p>
-              </div>
-            ))}
+            {Array.isArray(prevPrompts) && prevPrompts.length > 0 ? (
+              prevPrompts.map((item, index) => (
+                <div
+                  key={index}
+                  onClick={() => handleLoadPrompt(item.prompt)} // assuming `item.prompt` contains the text you need
+                  className="recent-entry"
+                >
+                  <img src={assets.message_icon} alt="Prompt Icon" />
+                  <p>
+                    {item.prompt && item.prompt.length > 25
+                      ? item.prompt.slice(0, 25) + "..." // truncate the prompt if it's too long
+                      : item.prompt}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <p>No recent prompts available</p>
+            )}
           </div>
         )}
       </div>

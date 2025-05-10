@@ -145,8 +145,40 @@
 
 .result-data {
   display: flex;
-  align-items: start;
+  flex-direction: column;
+  justify-content: start;
   gap: 20px;
+}
+
+.prose {
+  max-width: 100%;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  color: #2c3e50;
+}
+
+.prose p {
+  margin-bottom: 1em;
+}
+
+.prose ul,
+.prose ol {
+  margin-left: 20px;
+}
+
+.prose blockquote {
+  font-style: italic;
+  background-color: #f4f4f4;
+  padding: 10px;
+  border-left: 4px solid #ccc;
 }
 
 .loader {
@@ -180,6 +212,54 @@
   font-weight: 300;
   line-height: 1.8;
 }
+
+/* Inline Code Style */
+.inline-code {
+  background-color: #f5f5f5;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.95em;
+  color: #d6336c;
+}
+
+/* Block Code Style */
+.code-block {
+  background-color: #f8f9fa;
+  padding: 16px;
+  border-radius: 8px;
+  margin: 16px 0;
+  border: 1px solid #ddd;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 1em;
+  color: #343a40;
+  white-space: pre-wrap; /* Make sure the code wraps properly */
+  overflow-wrap: break-word;
+}
+/* Main.css */
+
+/* Style for Result Text */
+.result-text {
+  font-size: 1.2rem;
+  line-height: 1.6;
+}
+
+/* Style for Code Blocks */
+pre {
+  background-color: #2e2e2e;
+  color: #f8f8f2;
+  padding: 1rem;
+  border-radius: 5px;
+  overflow-x: auto;
+}
+
+code {
+  font-family: 'Courier New', Courier, monospace;
+  background-color: #f4f4f4;
+  padding: 0.2rem 0.4rem;
+  border-radius: 5px;
+}
+
 
 @media (max-width: 600px) {
   .main-bottom input {

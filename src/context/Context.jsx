@@ -1,63 +1,75 @@
-import { createContext, useState } from "react";
+import { createContext, useState, useEffect } from "react";
 import run from "../config/gemini";
 
 export const Context = createContext();
 
 const ContextProvider = (props) => {
-  const [input, setInput] = useState("");
-  const [recentPrompt, setRecentPrompt] = useState("");
-  const [prevPrompts, setPrevPrompts] = useState([]);
+  const [input, setInput] = useState(sessionStorage.getItem("input") || "");
+  const [recentPrompt, setRecentPrompt] = useState(
+    sessionStorage.getItem("recentPrompt") || ""
+  );
+  const [prevPrompts, setPrevPrompts] = useState(() => {
+    const stored = sessionStorage.getItem("prevPrompts");
+    return stored ? JSON.parse(stored) : [];
+  });
   const [showResult, setShowResult] = useState(false);
   const [loading, setLoading] = useState(false);
   const [resultData, setResultData] = useState("");
 
-  const delayPara = (index, nextWord) => {
-    setTimeout(() => {
-      setResultData((prev) => prev + nextWord);
-    }, 75 * index);
-  };
+  // Save to sessionStorage on change
+  useEffect(() => {
+    sessionStorage.setItem("input", input);
+    sessionStorage.setItem("recentPrompt", recentPrompt);
+    sessionStorage.setItem("prevPrompts", JSON.stringify(prevPrompts));
+  }, [input, recentPrompt, prevPrompts]);
 
   const newChat = () => {
+    setInput("");
+    setResultData("");
+    setRecentPrompt("");
     setLoading(false);
     setShowResult(false);
   };
 
   const onSent = async (prompt) => {
-    // Validate input or prompt
     const finalPrompt = prompt || input;
-    if (!finalPrompt.trim()) return; // Avoid empty submissions.
+    if (!finalPrompt.trim()) return;
 
-    setResultData("");
-    setLoading(true);
-    setShowResult(true);
+    // Check if prompt already exists in history
+    const existing = prevPrompts.find((item) => item.prompt === finalPrompt);
+
+    if (existing) {
+      setRecentPrompt(existing.prompt);
+      setResultData(existing.response);
+      setShowResult(true);
+      return;
+    }
 
     try {
-      // Update recent and previous prompts
+      setLoading(true);
       setRecentPrompt(finalPrompt);
-      setPrevPrompts((prev) => [...prev, finalPrompt]);
+      setResultData("");
+      setShowResult(true);
 
-      // Fetch response
       const response = await run(finalPrompt);
 
-      // Format response
-      const responseArray = response.split("**");
-      let formattedResponse = "";
-
-      responseArray.forEach((chunk, i) => {
-        formattedResponse += i % 2 === 1 ? `<b>${chunk}</b>` : chunk;
+      // Animate word-by-word response
+      const wordsArray = response.split(" ");
+      wordsArray.forEach((word, i) => {
+        setTimeout(() => {
+          setResultData((prev) => prev + word + " ");
+        }, 30 * i);
       });
 
-      formattedResponse = formattedResponse.split("*").join("</br>");
-      const wordsArray = formattedResponse.split(" ");
-
-      // Animate response display
-      wordsArray.forEach((word, i) => delayPara(i, word + " "));
+      const newEntry = { prompt: finalPrompt, response };
+      const updatedHistory = [newEntry, ...prevPrompts].slice(0, 10);
+      setPrevPrompts(updatedHistory);
     } catch (error) {
       console.error("Error fetching response:", error);
       setResultData("Error: Unable to fetch response.");
     } finally {
       setLoading(false);
-      setInput(""); // Clear input field
+      setInput("");
     }
   };
 

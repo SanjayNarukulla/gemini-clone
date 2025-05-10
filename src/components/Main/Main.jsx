@@ -2,6 +2,9 @@ import React, { useContext } from "react";
 import { assets } from "../../assets/assets";
 import "./Main.css";
 import { Context } from "../../context/Context";
+import ReactMarkdown from "react-markdown";
+import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
+import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
 
 const Main = () => {
   const {
@@ -34,7 +37,9 @@ const Main = () => {
   ];
 
   const handleSend = () => {
-    if (input.trim()) onSent();
+    if (input.trim()) {
+      onSent(input);
+    }
   };
 
   return (
@@ -83,13 +88,40 @@ const Main = () => {
             <div className="result-data">
               <img src={assets.gemini_icon} alt="Gemini Icon" />
               {loading ? (
-                <div className="loader">
-                  <hr />
-                  <hr />
-                  <hr />
-                </div>
+                <div className="animated-text result-text">{resultData}</div>
               ) : (
-                <p dangerouslySetInnerHTML={{ __html: resultData }}></p>
+                <ReactMarkdown
+                  children={resultData}
+                  components={{
+                    p: ({ node, ...props }) => (
+                      <p className="result-text" {...props} />
+                    ),
+                    h1: ({ node, ...props }) => (
+                      <h1 className="result-header" {...props} />
+                    ),
+                    h2: ({ node, ...props }) => (
+                      <h2 className="result-header" {...props} />
+                    ),
+                    code: ({ node, inline, className, children, ...props }) => {
+                      const language = className
+                        ? className.replace("language-", "")
+                        : "javascript";
+                      return !inline ? (
+                        <SyntaxHighlighter
+                          language={language}
+                          style={docco}
+                          {...props}
+                        >
+                          {String(children).replace(/\n$/, "")}
+                        </SyntaxHighlighter>
+                      ) : (
+                        <code className={className} {...props}>
+                          {children}
+                        </code>
+                      );
+                    },
+                  }}
+                />
               )}
             </div>
           </div>
